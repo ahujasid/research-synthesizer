@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body {
+        font-family: Arial, sans-serif; /* Optional: Improves font */
+      }
+      #summary {
+        width: 100%; /* Makes textarea take full width of the plugin window */
+        box-sizing: border-box; /* Ensures padding doesn't affect width */
+      }
+      #readButton {
+        background-color: black; /* Button background */
+        color: white; /* Button text color */
+        border: none; /* Removes border */
+        padding: 10px 20px; /* Adds some padding inside the button */
+        cursor: pointer; /* Changes cursor to pointer on hover */
+        border-radius: 4px; /* Optional: Rounds the corners of the button */
+        font-size: 12px; /* Adjusts font size */
+        width: 100%;
+        margin-bottom: 16px;
+      }
+      #readButton:hover {
+        background-color: #333333; /* Darker background on hover */
+      }
+      #apiKey {
+        width: calc(100% - 22px); /* Adjusts the width of the input */
+        margin-bottom: 10px; /* Adds some space below the input field */
+        box-sizing: border-box; /* Ensures padding doesn't affect width */
+        padding: 5px 10px; /* Adds some padding inside the input */
+      }
+    </style>
+  </head>
+  <body>
+    <input type="text" id="apiKey" placeholder="Enter OpenAI API Key" />
+    <button id="readButton">Generate Insights</button>
+    <textarea id="summary" rows="10" placeholder="Insights will appear here"></textarea>
+
+    <script>
+      // Button click event to read text and summarize
+      document.getElementById('readButton').onclick = () => {
+        const apiKey = document.getElementById('apiKey').value;
+        if (!apiKey) {
+          alert("Please enter your OpenAI API Key.");
+          return;
+        }
+
+        // Update placeholder text when the button is clicked
+        const summaryArea = document.getElementById('summary');
+        summaryArea.placeholder = "Generating insights...";
+
+        parent.postMessage({ pluginMessage: { type: 'read-text', apiKey } }, '*');
+      };
+
+      // Function to handle messages received from the plugin
+      onmessage = (event) => {
+        const message = event.data.pluginMessage;
+        if (message && message.type === 'text-summary') {
+          const summaryArea = document.getElementById('summary');
+          summaryArea.value = message.summary;
+
+          // Reset placeholder if summary is empty
+          if (!message.summary) {
+            summaryArea.placeholder = "Insights will appear here";
+          }
+
+          // Log the summary to the console
+          console.log('Summary:', message.summary);
+        }
+      };
+    </script>
+
+  </body>
+</html>
